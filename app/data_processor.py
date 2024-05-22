@@ -40,15 +40,18 @@ class DataProcessor:
             pd.DataFrame: DataFrame carregado do arquivo Excel, ou None se ocorrer um erro.
         """
         try:
-            df = pd.read_excel(file_path)
+            df = pd.read_excel(file_path, engine='openpyxl')
             return df
         except FileNotFoundError:
             print(f"Erro: Arquivo {file_path} não encontrado.")
         except pd.errors.EmptyDataError:
             print(f"Erro: O arquivo {file_path} está vazio.")
+        except ImportError as e:
+            print(f"Erro ao importar a biblioteca necessária: {e}")
         except Exception as e:
             print(f"Erro ao carregar o arquivo {file_path}: {e}")
         return None
+
 
     @staticmethod
     def strip_accents(s):
@@ -137,7 +140,7 @@ class DataProcessor:
         Faz upload dos dados processados para uma tabela no BigQuery.
         
         Parâmetros:
-            table_name (str): Nome da tabela no BigQuery.
+            table_name (str): Nome completo da tabela no BigQuery (ex: 'dataset.table').
             project_id (str): ID do projeto do Google Cloud.
         """
         if not isinstance(table_name, str) or not table_name:
