@@ -13,13 +13,7 @@ class DataProcessor:
         df (pd.DataFrame): DataFrame carregado do arquivo Excel.
     """
     
-    def __init__(self, file_path):
-        """
-        Inicializa a classe DataProcessor com o caminho do arquivo Excel.
-        
-        Parâmetros:
-            file_path (str): Caminho para o arquivo Excel.
-        """
+    def __init__(self, file_path, sheet_name=None):
         if not isinstance(file_path, str):
             raise TypeError("O caminho do arquivo deve ser uma string.")
         
@@ -27,30 +21,19 @@ class DataProcessor:
             raise FileNotFoundError(f"Arquivo não encontrado: {file_path}")
         
         self.file_path = file_path
-        self.df = self._load_excel(file_path)
+        self.sheet_name = sheet_name
+        self.df = self._load_excel(file_path, sheet_name)
 
-    def _load_excel(self, file_path):
-        """
-        Carrega um arquivo Excel em um DataFrame do pandas.
-        
-        Parâmetros:
-            file_path (str): Caminho para o arquivo Excel.
-        
-        Retorna:
-            pd.DataFrame: DataFrame carregado do arquivo Excel, ou None se ocorrer um erro.
-        """
+    def _load_excel(self, file_path, sheet_name):
         try:
-            df = pd.read_excel(file_path, engine='openpyxl')
+            df = pd.read_excel(file_path, sheet_name=sheet_name)
             return df
         except FileNotFoundError:
-            print(f"Erro: Arquivo {file_path} não encontrado.")
+            raise FileNotFoundError(f"Erro: Arquivo {file_path} não encontrado.")
         except pd.errors.EmptyDataError:
-            print(f"Erro: O arquivo {file_path} está vazio.")
-        except ImportError as e:
-            print(f"Erro ao importar a biblioteca necessária: {e}")
+            raise pd.errors.EmptyDataError(f"Erro: O arquivo {file_path} está vazio.")
         except Exception as e:
-            print(f"Erro ao carregar o arquivo {file_path}: {e}")
-        return None
+            raise Exception(f"Erro ao carregar o arquivo {file_path}: {e}")
 
 
     @staticmethod
